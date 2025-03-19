@@ -1,0 +1,30 @@
+{
+  "name": "tic-tac-toe",
+  "version": "0.1.0",
+  "description": "A terminal game",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "node --experimental-strip-types src/index.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node outSrc/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/adigiworld/tic-tac-toe.git"
+  },
+  "keywords": [
+    "Game"
+  ],
+  "author": "Adil Rasheed",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/adigiworld/tic-tac-toe/issues"
+  },
+  "homepage": "https://github.com/adigiworld/tic-tac-toe#readme",
+  "devDependencies": {
+    "@types/node": "^22.13.10",
+    "typescript": "^5.8.2"
+  }
+}
