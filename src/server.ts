@@ -3,7 +3,7 @@ import express from "express";
 import { type DefaultEventsMap, Server, Socket } from "socket.io";
 import { readFile } from "node:fs/promises";
 import { isInputValid } from "./validate.ts";
-import { isCornersWin, isDiagonalWin, isHorizontalWin, isVerticalWin } from "./wins.ts";
+import { isCatsGame, isCornersWin, isDiagonalWin, isHorizontalWin, isVerticalWin } from "./wins.ts";
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -13,7 +13,7 @@ const io = new Server(server);
 /** Game Logic Start */
 let isGameOver = false;
 let player = (Math.random() > 0.5) ? "Player X" : "Player O";
-let playersMoves = new Array(3).fill(undefined).map(arr => new Array(3).fill("*"));
+let playersMoves = new Array(3).fill(undefined).map(_arr => new Array(3).fill("*"));
 const moves = [[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2], [2, 0], [2, 1], [2, 2]]
 
 const RUNNING = "RUNNING";
@@ -64,18 +64,18 @@ io.on("connection", (socket) => {
         if (gameState === PLAYER_X_WINS) {
           playerX?.emit("won", "You Won!!!");
           playerO?.emit("loss", "You Lost!");
-          playersMoves = new Array(3).fill(undefined).map(arr => new Array(3).fill("*"));
+          playersMoves = new Array(3).fill(undefined).map(_arr => new Array(3).fill("*"));
           playerX = undefined;
           playerO = undefined;
         } else if (gameState === PLAYER_O_WINS) {
           playerO?.emit("won", "You Won!!!");
           playerX?.emit("loss", "You Lost!");
-          playersMoves = new Array(3).fill(undefined).map(arr => new Array(3).fill("*"));
+          playersMoves = new Array(3).fill(undefined).map(_arr => new Array(3).fill("*"));
           playerX = undefined;
           playerO = undefined;
         } else {
           socket.emit("tie", "Cat's Game. It's a Tie.");
-          playersMoves = new Array(3).fill(undefined).map(arr => new Array(3).fill("*"));
+          playersMoves = new Array(3).fill(undefined).map(_arr => new Array(3).fill("*"));
           playerX = undefined;
           playerO = undefined;
         }
@@ -88,16 +88,16 @@ io.on("connection", (socket) => {
 
 function startGame() {
   console.warn("The game has started!");
-  playerX.emit("playersMoves", playersMoves);
-  playerO.emit("playersMoves", playersMoves);
+  playerX?.emit("playersMoves", playersMoves);
+  playerO?.emit("playersMoves", playersMoves);
   player = (Math.random() > 0.5) ? "Player X" : "Player O";
 
   if (player === "Player X") {
-    playerX.emit("your turn");
-    playerO.emit("other player turn");
+    playerX?.emit("your turn");
+    playerO?.emit("other player turn");
   } else {
-    playerO.emit("your turn");
-    playerX.emit("other player turn");
+    playerO?.emit("your turn");
+    playerX?.emit("other player turn");
   }
 
 }
@@ -106,17 +106,23 @@ function getGamesState(moves: Array<Array<string>>) {
     || isVerticalWin(moves, "X")
     || isDiagonalWin(moves, "X")
     || isCornersWin(moves, "X");
+  if (playerXwins) { return PLAYER_X_WINS; }
+
   let playerOwins = isHorizontalWin(moves, "O")
     || isVerticalWin(moves, "O")
     || isDiagonalWin(moves, "O")
     || isCornersWin(moves, "O");
-  if (playerXwins) { return PLAYER_X_WINS; }
   if (playerOwins) { return PLAYER_O_WINS; }
+
+  let catsGame = isCatsGame(moves);
+  if (catsGame && !playerXwins && !playerOwins) {
+    return CATS_GAME;
+  }
 
   return RUNNING;
 }
 
-app.get("/game", async (req, res) => {
+app.get("/game", async (_req, res) => {
   const code = await readFile(new URL("../outSrc/client.js", import.meta.url), "utf8");
   const header = new Headers({ "content-Type": "text/javascript" });
   res.setHeaders(header);

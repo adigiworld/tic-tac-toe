@@ -12,3 +12,6 @@ export function isDiagonalWin(moves: Array<Array<string>>, symbol: string) {
 export function isCornersWin(moves: Array<Array<string>>, symbol: string) {
   return (moves[0][0] === symbol && moves[0][2] === symbol && moves[2][0] === symbol && moves[2][2] === symbol);
 }
+export function isCatsGame(moves: Array<Array<string>>) {
+  return moves.every((row, r) => row.every((_, c) => moves[r][c] !== "*"));
+}
